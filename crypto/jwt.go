@@ -44,7 +44,7 @@ func GenerateJWT(privateKey *rsa.PrivateKey,username string) (string, error) {
 	// Sign using RSA private key
 	return token.SignedString(privateKey)
 }
-func Validate_jwt(publicKey *rsa.PublicKey, tokenString string) {
+func Validate_jwt(publicKey *rsa.PublicKey, tokenString string) (jwt.MapClaims, error) {
 	// Parse the token
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Validate the signing method
@@ -55,17 +55,37 @@ func Validate_jwt(publicKey *rsa.PublicKey, tokenString string) {
 	})
 
 	if err != nil {
-		fmt.Println("Error validating token:", err)
-		return
+		return nil, fmt.Errorf("error validating token: %w", err)
 	}
 
-	// Extract and print claims
+	// Extract and return claims if valid
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		fmt.Println("Token is valid.")
-		fmt.Println("Username:", claims["username"])
-		fmt.Println("Issued At:", time.Unix(int64(claims["iat"].(float64)), 0))
-		fmt.Println("Expires At:", time.Unix(int64(claims["exp"].(float64)), 0))
-	} else {
-		fmt.Println("Invalid token")
+		return claims, nil
 	}
+
+	return nil, fmt.Errorf("invalid token")
+}
+
+func LoadPublicKey(path string) (*rsa.PublicKey, error) {
+	keyData, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	block, _ := pem.Decode(keyData)
+	if block == nil || block.Type != "PUBLIC KEY" {
+		return nil, errors.New("failed to decode PEM block containing public key")
+	}
+
+	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	publicKey, ok := pub.(*rsa.PublicKey)
+	if !ok {
+		return nil, errors.New("not an RSA public key")
+	}
+
+	return publicKey, nil
 }

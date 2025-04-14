@@ -10,9 +10,10 @@ import (
 
 // Struct to hold database and its collections
 type DatabaseInfo struct {
-	Name        string
-	Collections []string
+	Name        string   `json:"name"`
+	Collections []string `json:"collections"`
 }
+
 
 // Function to connect using a MongoDB URI and return databases + collections
 func GetDatabasesAndCollections(mongoURI string) ([]DatabaseInfo, error) {

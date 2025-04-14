@@ -65,7 +65,7 @@ func main() {
 	}
 
 	fmt.Println("RSA key pair generated and saved to private_key.pem and public_key.pem")
-	db.ConnectToDB()
+	db.ConnectDB()
 	// Initialize the Gin router
 	router := gin.Default()
 
@@ -74,6 +74,7 @@ func main() {
 	router.POST("/signup",handlers.Signup)
 	router.POST("/signin",handlers.Signin)
 	router.POST("/getoption",handlers.Getoption)
+	router.POST("/analyze",handlers.Analyze)
 
 	// Start the server on port 8080
 	if err := router.Run(":8080"); err != nil {
