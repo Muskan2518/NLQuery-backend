@@ -74,7 +74,8 @@ func main() {
 	router.POST("/signup",handlers.Signup)
 	router.POST("/signin",handlers.Signin)
 	router.POST("/getoption",handlers.Getoption)
-	router.POST("/analyze",handlers.Analyze)
+	//router.POST("/analyze",handlers.Analyze)
+	router.GET("/getpublickey",handlers.GetPublicKey)
 
 	// Start the server on port 8080
 	if err := router.Run(":8080"); err != nil {
